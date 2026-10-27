@@ -118,3 +118,37 @@ nav.tabs .count { position: absolute; top: -2px; right: 10px; background: var(--
 .divider { display: flex; align-items: center; gap: 12px; color: var(--muted); font-size: 13px; margin: 20px 0 4px; }
 .divider::before, .divider::after { content: ''; flex: 1; border-top: 1px solid var(--line); }
 .rank { width: 28px; color: var(--muted); }
+
+/* Budget report: reads on screen, prints as a clean one-page document. */
+.report { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px; margin-top: 12px; }
+.report header h2 { margin: 2px 0 4px; }
+.report .church { font-weight: 600; color: var(--blue); text-transform: uppercase; letter-spacing: .06em; font-size: 13px; }
+.report h3 { font-size: 15px; margin: 18px 0 6px; }
+.report-totals { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 14px 0 8px; }
+.report-totals div { border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; }
+.report-totals small { display: block; color: var(--muted); }
+.report-totals b { font-size: clamp(14px, 4.2vw, 18px); white-space: nowrap; }
+.report-totals .pos b { color: var(--green); }
+.report-totals .neg b { color: var(--red); }
+.report-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.report-table th, .report-table td { text-align: left; padding: 5px 4px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.report-table th.num, .report-table td.num { text-align: right; white-space: nowrap; }
+.report-table tfoot td { font-weight: 600; border-bottom: 0; }
+.report-table tr.struck td { text-decoration: line-through; color: var(--muted); }
+.report-table .bar-cell { width: 45%; }
+.report-table .bar { display: block; height: 8px; border-radius: 4px; background: var(--blue); min-width: 2px; }
+.signatures { display: grid; grid-template-columns: 2fr 2fr 1fr; gap: 16px; margin: 36px 0 12px; font-size: 12px; color: var(--muted); }
+.signatures span { display: block; border-bottom: 1px solid var(--text); height: 28px; margin-bottom: 4px; }
+.report-table .nowrap { white-space: nowrap; }
+@media (max-width: 480px) { .report-table { font-size: 12px; } .report-table .by { display: none; } }
+
+@media print {
+  :root, :root[data-theme] { --bg: #fff; --surface: #fff; --page: #fff; --text: #000; --muted: #444; --line: #bbb; color-scheme: light; }
+  header.top, nav.tabs, .fab, .no-print { display: none !important; }
+  body, #root { background: #fff !important; box-shadow: none !important; border: 0 !important; max-width: none !important; }
+  main { padding: 0 !important; }
+  .report { border: 0; padding: 0; margin: 0; }
+  .report-table .by { display: table-cell; }
+  .report-table tr, .signatures { break-inside: avoid; }
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}

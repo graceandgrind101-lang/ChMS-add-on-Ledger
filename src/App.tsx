@@ -12,6 +12,7 @@ import AddExpense from './views/AddExpense';
 import Ledger from './views/Ledger';
 import Approvals from './views/Approvals';
 import More from './views/More';
+import Report from './views/Report';
 
 export default function App() {
   const me = useMe();
@@ -34,6 +35,10 @@ export default function App() {
     case 'budget':
       view = <BudgetDetail id={parts[1]} me={me} receiptId={params.get('receipt') ?? undefined} />;
       title = 'Budget';
+      break;
+    case 'report':
+      view = <Report id={parts[1]} me={me} />;
+      title = 'Report';
       break;
     case 'new-budget':
       view = <NewBudget me={me} />;
@@ -58,9 +63,9 @@ export default function App() {
     default:
       view = <Budgets me={me} />;
   }
-  const tab = parts[0] === 'budget' || parts[0] === 'new-budget' || !parts[0] ? 'budgets' : parts[0];
+  const tab = parts[0] === 'budget' || parts[0] === 'report' || parts[0] === 'new-budget' || !parts[0] ? 'budgets' : parts[0];
   // Pages opened from another page get a back arrow instead of being a tab of their own.
-  const sub = parts[0] === 'budget' || parts[0] === 'new-budget' || parts[0] === 'add';
+  const sub = parts[0] === 'budget' || parts[0] === 'report' || parts[0] === 'new-budget' || parts[0] === 'add';
   const showFab = !parts[0] || (parts[0] === 'budget' && parts[1]);
 
   return (

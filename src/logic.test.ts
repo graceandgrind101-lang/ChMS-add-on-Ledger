@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { budgetAlerts, parseReceiptText, scoreCloseOut, summarize } from './logic';
+import { budgetAlerts, parseReceiptText, scoreCloseOut, spendByCategory, summarize } from './logic';
 import type { Budget, Expense } from './db';
 
 const budget: Budget = {
@@ -57,5 +57,13 @@ describe('parseReceiptText', () => {
     expect(r.merchant).toBe('Delta Air Lines');
     expect(r.date).toBe('2026-10-03');
     expect(r.total).toBe(127240);
+  });
+});
+
+describe('spendByCategory', () => {
+  it('totals approved spending per category, biggest first', () => {
+    const food = { ...exp(3000, 'approved'), category: 'Food' };
+    const rows = spendByCategory([exp(50000, 'approved'), food, { ...food, id: 'f2' }, exp(9999, 'pending')]);
+    expect(rows).toEqual([{ category: 'Travel', total: 50000 }, { category: 'Food', total: 6000 }]);
   });
 });
