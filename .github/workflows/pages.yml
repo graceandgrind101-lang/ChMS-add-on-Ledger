@@ -28,7 +28,8 @@ jobs:
       - run: npm run build
         env:
           BASE_PATH: /${{ github.event.repository.name }}/
-          VITE_GOOGLE_CLIENT_ID: ${{ vars.GOOGLE_CLIENT_ID }}
+          # OAuth client IDs are public. The GOOGLE_CLIENT_ID repo variable, if set, overrides this one.
+          VITE_GOOGLE_CLIENT_ID: ${{ vars.GOOGLE_CLIENT_ID || '186524824019-4hgd0n6p4hcn1k0t6qbk60113kakrtlk.apps.googleusercontent.com' }}
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist

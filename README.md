@@ -32,7 +32,7 @@ Use **More → Load demo data** to fill it with a sample church for demos. **Mor
 1. In [Google Cloud Console](https://console.cloud.google.com/), create a project and enable the **Google Drive API**.
 2. Set up the **OAuth consent screen** (External). Add the scope `.../auth/drive.appdata`. While in Testing, add the Google accounts that will try it as test users.
 3. Create **Credentials → OAuth client ID → Web application**. Under *Authorized JavaScript origins* add `http://localhost:5173` and your site, e.g. `https://graceandgrind101-lang.github.io`.
-4. Put the client ID in `.env.local` as `VITE_GOOGLE_CLIENT_ID=...` for local runs, and in the repo under **Settings → Secrets and variables → Actions → Variables** as `GOOGLE_CLIENT_ID` for the hosted site.
+4. For local runs, put the client ID in `.env.local` as `VITE_GOOGLE_CLIENT_ID=...`. The hosted site uses the ID in `.github/workflows/pages.yml`, unless a `GOOGLE_CLIENT_ID` Actions variable is set.
 
 Without a client ID the app runs in device-only mode.
 
