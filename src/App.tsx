@@ -14,6 +14,7 @@ import Approvals from './views/Approvals';
 import More from './views/More';
 import Report from './views/Report';
 import Tour from './Tour';
+import Join from './views/Join';
 import { isDemo } from './demo';
 
 export default function App() {
@@ -30,6 +31,7 @@ export default function App() {
   useAutoBackup(online);
 
   if (!ready) return <p className="muted" style={{ padding: 16 }}>Loading…</p>;
+  if (parts[0] === 'join' && params.get('i')) return <Join code={params.get('i')!} me={me} />;
   if (!me) return <Login />;
 
   let view;
