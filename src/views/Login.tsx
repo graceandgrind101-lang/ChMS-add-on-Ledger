@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { db, setSetting, uid, type Person } from '../db';
 import { CLIENT_ID, lastDriveBackup, restoreFromDrive, signIn } from '../google';
 import { setMe } from '../session';
+import { GoogleLogo } from '../icons';
 
 /**
  * First screen. Google sign-in links the device to the user's Drive backup; if a backup
@@ -51,14 +52,14 @@ export default function Login() {
       {error && <div className="notice error">{error}</div>}
       {CLIENT_ID && (
         <>
-          <button className="primary" onClick={google} disabled={busy}>{busy ? 'Signing in…' : 'Sign in with Google'}</button>
+          <button className="google-btn" onClick={google} disabled={busy}><GoogleLogo />{busy ? 'Signing in…' : 'Sign in with Google'}</button>
           <p className="muted"><small>Your data is saved on this device and backed up to your own Google Drive.</small></p>
-          <p className="muted"><small>or</small></p>
+          <div className="divider"><span>or</span></div>
         </>
       )}
       <label htmlFor="name" style={{ textAlign: 'left' }}>Use without Google (this device only)</label>
       <input id="name" placeholder="Your name" value={name} onChange={(e) => setName(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && local()} />
-      <button onClick={local}>Continue on this device</button>
+      <button className="primary" onClick={local}>Continue on this device</button>
     </div>
   );
 }

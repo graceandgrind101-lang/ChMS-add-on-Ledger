@@ -7,6 +7,7 @@ import { formatMoney, parseMoney, toInput } from '../money';
 import { compressImage, readReceipt } from '../ocr';
 import { canManage } from '../session';
 import { go } from '../router';
+import { Icon } from '../icons';
 
 const CATEGORIES = ['Travel', 'Lodging', 'Food', 'Ministry supplies', 'Transport', 'Venue', 'Printing', 'Gifts', 'Medical', 'Other'];
 
@@ -91,9 +92,13 @@ export default function AddExpense({ me, budgetId }: { me: Person; budgetId?: st
   return (
     <form onSubmit={save}>
       <div className="capture">
-        <label className={source === 'camera' && image ? 'on' : ''}>Take photo<input type="file" accept="image/*" capture="environment" onChange={(e) => onFile(e.target.files?.[0], 'camera')} /></label>
-        <label className={source === 'gallery' && image ? 'on' : ''}>Upload<input type="file" accept="image/*" onChange={(e) => onFile(e.target.files?.[0], 'gallery')} /></label>
-        <label className={source === 'email' ? 'on' : ''} onClick={(e) => { e.preventDefault(); setSource('email'); }}>Email receipt</label>
+        <label className={source === 'camera' && image ? 'on' : ''}>
+          <Icon name="camera" size={28} />Take photo<input type="file" accept="image/*" capture="environment" onChange={(e) => onFile(e.target.files?.[0], 'camera')} /></label>
+        <label className={source === 'gallery' && image ? 'on' : ''}>
+          <Icon name="image" size={28} />Upload<input type="file" accept="image/*" onChange={(e) => onFile(e.target.files?.[0], 'gallery')} /></label>
+        <label className={source === 'email' ? 'on' : ''} onClick={(e) => { e.preventDefault(); setSource('email'); }}>
+          <Icon name="mail" size={28} />Email receipt
+        </label>
       </div>
 
       {source === 'email' && !image && (
