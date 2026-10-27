@@ -152,3 +152,18 @@ nav.tabs .count { position: absolute; top: -2px; right: 10px; background: var(--
   .report-table tr, .signatures { break-inside: avoid; }
   * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }
+
+/* Demo mode: guided tour sheet above the tabs, and a slim bar once the tour is done. */
+.tour { position: fixed; left: 0; right: 0; bottom: calc(76px + env(safe-area-inset-bottom)); max-width: 696px; margin: 0 auto 8px; width: calc(100% - 24px); background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--blue); border-radius: 12px; padding: 12px 14px; box-shadow: var(--shadow), 0 4px 16px rgba(0, 0, 0, .18); z-index: 3; }
+.tour small { color: var(--blue); font-weight: 600; }
+.tour b { display: block; font-size: 16px; margin: 2px 0 4px; }
+.tour p { margin: 0 0 4px; }
+.tour .actions { margin-top: 8px; }
+button.link { background: none; border: 0; color: var(--muted); padding-left: 4px; padding-right: 4px; }
+body.touring main { padding-bottom: 260px; }
+body.touring .fab { display: none; }
+.demo-bar { display: flex; align-items: center; gap: 8px; padding: 6px 12px; background: var(--amber-soft); color: var(--amber); font-size: 13px; font-weight: 600; }
+.demo-bar span { flex: 1; }
+.demo-bar button { padding: 4px 12px; font-size: 13px; }
+.demo-btn { width: 100%; border-style: dashed; }
+@media print { .tour, .demo-bar { display: none !important; } }
