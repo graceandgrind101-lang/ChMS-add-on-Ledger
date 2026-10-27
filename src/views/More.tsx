@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db, getSetting, setSetting, uid, type Person, type Role } from '../db';
-import { exportSnapshot, importSnapshot } from '../backup';
+import { exportSnapshot, importSnapshot, mergeSnapshot } from '../backup';
 import { backupToDrive, CLIENT_ID, hasToken, restoreFromDrive, signIn, signOut, type GoogleProfile } from '../google';
-import { toCsv, download } from '../csv';
+import { toCsv, download, shareOrDownload } from '../csv';
 import { formatMoney } from '../money';
 import { loadSampleData } from '../sample';
-import { canManage, ROLE_LABEL, setMe } from '../session';
+import { canManage, linkSamePerson, ROLE_LABEL, setMe } from '../session';
 
 export default function More({ me }: { me: Person }) {
   return (
@@ -162,6 +162,20 @@ function Data({ me }: { me: Person }) {
     }));
     download(`expenses-${new Date().toLocaleDateString('en-CA')}.csv`, toCsv(rows));
   }
+  async function sendUpdates() {
+    const name = me.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    await shareOrDownload(`ledger-updates-${name}-${new Date().toLocaleDateString('en-CA')}.json`, JSON.stringify(await exportSnapshot()), 'application/json');
+  }
+  async function receiveUpdates(file?: File) {
+    if (!file) return;
+    try {
+      const r = await mergeSnapshot(JSON.parse(await file.text()));
+      await linkSamePerson(me);
+      setMsg(r.added || r.updated ? `Updates received: ${r.added} new, ${r.updated} changed.` : 'Already up to date.');
+    } catch (e) {
+      setMsg((e as Error).message);
+    }
+  }
   async function saveFile() {
     download(`chms-ledger-backup-${new Date().toLocaleDateString('en-CA')}.json`, JSON.stringify(await exportSnapshot()), 'application/json');
   }
@@ -176,13 +190,19 @@ function Data({ me }: { me: Person }) {
   }
   return (
     <>
-      <h2>Data</h2>
+      <h2>Share with your team</h2>
+      <p className="muted">Send your expenses to the treasurer, or send approvals and budgets back, by WhatsApp or email. Opening a received file adds the changes without erasing anything.</p>
       {msg && <div className="notice">{msg}</div>}
+      <div className="actions">
+        <button className="primary" onClick={sendUpdates}>Send updates</button>
+        <label className="btn" style={{ margin: 0, color: 'var(--blue)' }}>Receive updates<input type="file" accept="application/json,.json" hidden onChange={(e) => { receiveUpdates(e.target.files?.[0]); e.target.value = ''; }} /></label>
+      </div>
+      <h2>Data</h2>
       <div className="actions">
         <button onClick={exportExpenses}>Expenses as CSV</button>
         <a className="btn" href="#/ledger">Ledger as CSV</a>
         <button onClick={saveFile}>Save backup file</button>
-        <label className="btn" style={{ margin: 0, color: 'var(--blue)' }}>Open backup file<input type="file" accept="application/json" hidden onChange={(e) => openFile(e.target.files?.[0])} /></label>
+        <label className="btn" style={{ margin: 0, color: 'var(--blue)' }}>Restore backup file<input type="file" accept="application/json" hidden onChange={(e) => openFile(e.target.files?.[0])} /></label>
       </div>
       {canManage(me) && (
         <div className="actions">

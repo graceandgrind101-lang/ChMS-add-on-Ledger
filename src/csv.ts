@@ -17,3 +17,17 @@ export function download(filename: string, text: string, type = 'text/csv') {
   a.click();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
+
+/** Opens the phone's share sheet (WhatsApp, email…) with the file; falls back to a download. */
+export async function shareOrDownload(filename: string, text: string, type: string) {
+  const file = new File([text], filename, { type });
+  if (navigator.canShare?.({ files: [file] })) {
+    try {
+      await navigator.share({ files: [file], title: filename });
+      return;
+    } catch (e) {
+      if ((e as Error).name === 'AbortError') return;
+    }
+  }
+  download(filename, text, type);
+}

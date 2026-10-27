@@ -13,6 +13,7 @@ It works fully offline. Data is saved on the device first and, when the user sig
 - **Ledger**: every budget given, expense, payback, return of unspent money, and top-up, with a running balance. Downloadable as CSV for spreadsheets.
 - **Warnings and rewards**: alerts when a budget is running low, overspent, spending too fast, or about to expire. Closing a budget scores it: saving 10% earns *Faithful steward*, 25% earns *Wise saver*, and points add up on a leaderboard.
 - **Close out or reset**: unspent funds go back to the church on the ledger, and an optional new round of the same budget starts.
+- **Share between phones without a server**: *More → Send updates* opens the phone's share sheet (WhatsApp, email) with a file; *Receive updates* merges it, keeping the newest version of each budget and expense. A missionary sends expenses to the treasurer, the treasurer sends approvals and budgets back.
 - **Backup**: automatic Google Drive backup (hidden app folder, like WhatsApp), plus a backup file you can save and open.
 
 ## Run it
@@ -49,6 +50,6 @@ In the repo, open **Settings → Pages** and set *Source* to **GitHub Actions**.
 
 ## Not yet
 
-- **Sharing between people's phones.** Each person's data lives on their device and their own Drive. Until the central ChMS API is connected, approvals work on a shared device or by passing a backup file. `exportSnapshot()` in `src/backup.ts` is the single place to send data to that API.
+- **Live sync between phones.** Until the central ChMS API is connected, phones exchange update files (above). `exportSnapshot()` and `mergeSnapshot()` in `src/backup.ts` are where that API plugs in; records carry `updatedAt` for newest-wins merging.
 - **Forwarding receipts to an email address.** This needs a server. For now, paste the email text or upload a screenshot or photo.
 - **Gemini receipt extraction.** Plug in at `readReceipt()` in `src/ocr.ts`.
