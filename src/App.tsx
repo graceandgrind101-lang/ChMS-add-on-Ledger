@@ -1,5 +1,5 @@
 import { useLiveQuery } from 'dexie-react-hooks';
-import { db } from './db';
+import { db, getSetting } from './db';
 import { canManage, useMe } from './session';
 import { useOnline, useRoute } from './router';
 import { useAutoBackup } from './useAutoBackup';
@@ -16,6 +16,7 @@ import Report from './views/Report';
 import Tour from './Tour';
 import Join from './views/Join';
 import { isDemo } from './demo';
+import { setCurrency } from './money';
 
 export default function App() {
   const me = useMe();
@@ -28,6 +29,8 @@ export default function App() {
     return pending + owed;
   }, [], 0);
   const demo = useLiveQuery(isDemo, [], false);
+  const currency = useLiveQuery(() => getSetting('currency', 'USD'), [], 'USD');
+  setCurrency(currency);
   useAutoBackup(online);
 
   if (!ready) return <p className="muted" style={{ padding: 16 }}>Loading…</p>;
@@ -85,7 +88,7 @@ export default function App() {
         {!online && <span className="offline"><Icon name="offline" size={16} /> Offline</span>}
       </header>
       {demo && <Tour />}
-      <main>{view}</main>
+      <main key={currency}>{view}</main>
       {showFab && (
         <a className="fab" href={parts[0] === 'budget' ? `#/add?budget=${parts[1]}` : '#/add'} aria-label="Add expense">
           <Icon name="add" size={28} />

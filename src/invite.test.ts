@@ -13,6 +13,7 @@ describe('invite links', () => {
   it("carries the person's budgets, and only theirs, to a new phone", async () => {
     await db.people.bulkAdd([treasurer, ruth, { id: 'd1', name: 'Daniel', role: 'leader' }]);
     await setSetting('churchName', 'Grace Community Church');
+    await setSetting('currency', 'KES');
     const kenya = await createBudget({ name: 'Kenya', purpose: '', assigneeId: 'r1', assigneeName: 'Ruth Mensah', amount: 400000, startDate: '2026-10-01' }, treasurer);
     await createBudget({ name: 'VBS', purpose: '', assigneeId: 'd1', assigneeName: 'Daniel', amount: 80000, startDate: '2026-10-01' }, treasurer);
     await addExpense({ budgetId: kenya.id, date: '2026-10-02', merchant: 'Kenya Airways', category: 'Travel', amount: 168500, notes: '', paidWith: 'budget', spenderId: 'r1', spenderName: 'Ruth Mensah', source: 'email' }, treasurer, true);
@@ -28,6 +29,7 @@ describe('invite links', () => {
     expect(await db.expenses.count()).toBe(1);
     expect(await db.people.count()).toBe(2);
     expect(await getSetting('churchName', '')).toBe('Grace Community Church');
+    expect(await getSetting('currency', 'USD')).toBe('KES');
   });
 
   it('rejects a damaged link', async () => {

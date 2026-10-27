@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db, today, uid, type Person, type Role } from '../db';
 import { createBudget } from '../actions';
-import { parseMoney } from '../money';
+import { parseMoney, currencyCode } from '../money';
 import { canManage, ROLE_LABEL } from '../session';
 import { go } from '../router';
 
@@ -58,7 +58,7 @@ export default function NewBudget({ me }: { me: Person }) {
           </div>
         </div>
       )}
-      <label htmlFor="amt">Amount (USD)</label>
+      <label htmlFor="amt">Amount ({currencyCode()})</label>
       <input id="amt" inputMode="decimal" placeholder="2,000.00" value={f.amount} onChange={set('amount')} />
       <div className="grid2">
         <div><label htmlFor="st">Starts</label><input id="st" type="date" value={f.start} onChange={set('start')} /></div>

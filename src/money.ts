@@ -1,7 +1,25 @@
 // All amounts are stored as whole cents so totals never drift.
 export type Cents = number;
 
-const fmt = new Intl.NumberFormat(undefined, { style: 'currency', currency: 'USD' });
+/** Currencies a church can pick. Each church uses one, set by its treasurer. */
+export const CURRENCIES: Record<string, string> = {
+  USD: 'US dollar', CAD: 'Canadian dollar', GBP: 'British pound', EUR: 'Euro', AUD: 'Australian dollar',
+  KES: 'Kenyan shilling', NGN: 'Nigerian naira', GHS: 'Ghanaian cedi', ZAR: 'South African rand',
+  UGX: 'Ugandan shilling', TZS: 'Tanzanian shilling', RWF: 'Rwandan franc', ETB: 'Ethiopian birr',
+  INR: 'Indian rupee', PHP: 'Philippine peso', BRL: 'Brazilian real', MXN: 'Mexican peso',
+};
+
+let code = 'USD';
+let fmt = new Intl.NumberFormat(undefined, { style: 'currency', currency: code });
+
+/** Switches every amount shown in the app to the church's currency. */
+export function setCurrency(next: string) {
+  if (next === code || !CURRENCIES[next]) return;
+  code = next;
+  fmt = new Intl.NumberFormat(undefined, { style: 'currency', currency: code });
+}
+
+export const currencyCode = () => code;
 
 export function formatMoney(cents: Cents): string {
   return fmt.format(cents / 100);

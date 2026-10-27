@@ -3,7 +3,7 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { db, today, uid, type Expense, type Person } from '../db';
 import { addExpense } from '../actions';
 import { parseReceiptText } from '../logic';
-import { formatMoney, parseMoney, toInput } from '../money';
+import { formatMoney, parseMoney, toInput, currencyCode } from '../money';
 import { compressImage, readReceipt } from '../ocr';
 import { canManage } from '../session';
 import { go } from '../router';
@@ -127,7 +127,7 @@ export default function AddExpense({ me, budgetId }: { me: Person; budgetId?: st
       </select>
       {chosen && <small className="muted">Budget amount {formatMoney(chosen.amount)}</small>}
       <div className="grid2">
-        <div><label htmlFor="amt">Amount (USD)</label><input id="amt" inputMode="decimal" value={f.amount} onChange={set('amount')} placeholder="0.00" /></div>
+        <div><label htmlFor="amt">Amount ({currencyCode()})</label><input id="amt" inputMode="decimal" value={f.amount} onChange={set('amount')} placeholder="0.00" /></div>
         <div><label htmlFor="dt">Date</label><input id="dt" type="date" value={f.date} onChange={set('date')} /></div>
       </div>
       <label htmlFor="mer">Store or payee</label>

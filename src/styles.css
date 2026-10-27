@@ -177,3 +177,4 @@ button.small { padding: 4px 12px; font-size: 13px; margin-left: auto; margin-rig
 .join-budgets .row + .row { margin-top: 6px; }
 .paste-invite { margin-top: 20px; text-align: left; }
 .paste-invite summary { cursor: pointer; color: var(--blue); text-align: center; font-size: 14px; }
+.legal { margin-top: 28px; font-size: 13px; color: var(--muted); }

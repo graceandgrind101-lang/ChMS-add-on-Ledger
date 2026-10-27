@@ -9,6 +9,8 @@ import { mergeSnapshot } from './backup';
 export interface Invite {
   v: 1;
   church: string;
+  /** Missing in links made before churches could pick a currency. */
+  currency?: string;
   personId: string;
   people: Person[];
   data: { budgets: unknown[]; expenses: unknown[]; ledger: unknown[]; closeouts: unknown[] };
@@ -43,6 +45,7 @@ export async function buildInvite(person: Person, from: Person): Promise<Invite>
   return {
     v: 1,
     church: await getSetting('churchName', ''),
+    currency: await getSetting('currency', 'USD'),
     personId: person.id,
     people: from.id === person.id ? [person] : [from, person],
     data: {
@@ -68,5 +71,6 @@ export async function acceptInvite(invite: Invite): Promise<Person> {
     data: { people: invite.people, ...invite.data, receipts: [] },
   });
   if (invite.church && !(await getSetting('churchName', ''))) await setSetting('churchName', invite.church);
+  if (invite.currency) await setSetting('currency', invite.currency);
   return (await db.people.get(invite.personId))!;
 }

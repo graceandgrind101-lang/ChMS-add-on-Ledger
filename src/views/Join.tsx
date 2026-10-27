@@ -3,7 +3,7 @@ import { db, setSetting, type Budget, type Person } from '../db';
 import { acceptInvite, decodeInvite, type Invite } from '../invite';
 import { CLIENT_ID, lastDriveBackup, restoreFromDrive, signIn } from '../google';
 import { linkSamePerson, ROLE_LABEL, setMe } from '../session';
-import { formatMoney } from '../money';
+import { formatMoney, setCurrency } from '../money';
 import { go } from '../router';
 import { GoogleLogo } from '../icons';
 
@@ -20,6 +20,7 @@ export default function Join({ code, me }: { code: string; me?: Person }) {
   if (error) return <div className="login"><h1>Invite link</h1><div className="notice error">{error}</div><a className="btn" href="#/">Open the app</a></div>;
   if (!invite) return <p className="muted" style={{ padding: 16 }}>Opening invite…</p>;
 
+  if (invite.currency) setCurrency(invite.currency);
   const person = invite.people.find((p) => p.id === invite.personId)!;
   const from = invite.people.find((p) => p.id !== invite.personId);
   const budgets = (invite.data.budgets as Budget[]).filter((b) => b.status === 'active');
