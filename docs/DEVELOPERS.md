@@ -41,7 +41,8 @@ src/
   App.tsx           shell: app bar, routes, floating + button, bottom tabs, demo tour
   db.ts             Dexie schema, types, uid(), today(), getSetting/setSetting
   actions.ts        every write that touches money (each writes its ledger line in the same transaction)
-  logic.ts          pure functions: summarize, budgetAlerts, scoreCloseOut, parseReceiptText, spendByCategory
+  logic.ts          pure functions: summarize, budgetAlerts, reminders, scoreCloseOut, parseReceiptText, spendByCategory
+  calendar.ts       .ics event for a budget's end date (phone calendar does the notifying)
   money.ts          cents, currency formatting (per-church currency), parseMoney
   session.ts        roles, canManage(), current user (useMe/setMe), linkSamePerson()
   backup.ts         exportSnapshot / importSnapshot (replace) / mergeSnapshot (newest-wins)
@@ -55,7 +56,7 @@ src/
   Fatal.tsx         error boundary and "storage blocked" screens
   icons.tsx         inline SVG icons, progress ring
   views/            one file per screen (Budgets, BudgetDetail, AddExpense, Approvals, Ledger,
-                    Report, NewBudget, More, Login, Join) + shared parts
+                    Report, NewBudget, More, Login, Join, Expenses search) + shared parts
 public/             icon, privacy.html, terms.html, demo-receipt.jpg (ocr/ is generated, gitignored)
 scripts/copy-ocr.mjs  copies tesseract worker/core/eng data from node_modules into public/ocr
 ```
@@ -68,7 +69,7 @@ All money is **integer cents** (`Cents`). Dates are `YYYY-MM-DD` strings in the 
 | --- | --- | --- |
 | `people` | `id` | name, optional Google email, `role`: admin, treasurer, leader, missionary, volunteer |
 | `budgets` | `id` | name, purpose, assignee, `amount`, start/end date, `status` active/closed, `cycle`, `previousId` when renewed |
-| `expenses` | `id` | budget, date, merchant, category, amount, `paidWith` budget/own, `status` pending/approved/rejected, `reimbursement` none/owed/paid, optional `receiptId`, OCR text, who decided |
+| `expenses` | `id` | budget, date, merchant, category, amount, `paidWith` budget/own, `status` pending/approved/rejected/withdrawn, `reimbursement` none/owed/paid, optional `receiptId`, OCR text, who decided |
 | `receipts` | `id` | the compressed photo `Blob` |
 | `ledger` | `++seq` | append-only lines: allocation, expense, reimbursement (memo), return, top-up; `moneyIn`/`moneyOut` |
 | `closeouts` | `id` | result of closing a budget: spent, saved, %, badge, points |
@@ -78,6 +79,7 @@ Rules worth knowing:
 
 - **Only admins and treasurers** (`canManage`) create budgets, approve, pay back and close. On the Budgets and Approvals screens others see only their own budgets and expenses; the Ledger screen shows everything on the device.
 - **Write money through `actions.ts`**, never straight to the tables, so the ledger stays complete. Ledger lines are never edited.
+- Expenses can be edited or withdrawn only while pending or rejected (`canEditExpense`); approved ones are locked. Nothing is hard-deleted: withdrawing sets status `withdrawn`, because the newest-wins merge has no deletes and a removed row would come back from another phone.
 - People, budgets and expenses carry `updatedAt`, stamped by Dexie hooks. `mergeSnapshot` keeps the newest copy of each; ledger, close-outs and receipts are added if missing.
 - A schema change needs a new `this.version(n)` in `db.ts`, with an upgrade function if existing data must change.
 
@@ -95,7 +97,7 @@ Rules worth knowing:
 - **Central ChMS API (live sync).** Replace file sharing with API calls. `exportSnapshot()` and `mergeSnapshot()` already define the data shape and the merge rule; a sync job can push local changes (`updatedAt` newer than the last sync) and merge what comes back. Put API keys in a server or proxy, never in the browser bundle.
 - **Gemini receipt reading.** Swap or extend `readReceipt()` in `src/ocr.ts`; it must return `ParsedReceipt` (merchant, date, total) plus text. Call Gemini through a small proxy so the key is not exposed in the PWA.
 - **Email-in receipts.** Needs a server (inbound email webhook). Today users paste the email text.
-- **Notifications.** No push server exists; reminders are shown in the app (see `budgetAlerts`).
+- **Notifications.** No push server exists. Reminders show on the home screen (`reminders()` in `logic.ts`), as the installed app's icon badge, and as calendar alerts via `calendar.ts`. Real push notifications need a server with Web Push.
 
 ## Google sign-in (currently parked)
 
