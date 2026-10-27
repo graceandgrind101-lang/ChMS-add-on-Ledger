@@ -33,6 +33,7 @@ export default function App() {
   }, [], 0);
   const demo = useLiveQuery(isDemo, [], false);
   const currency = useLiveQuery(() => getSetting('currency', 'USD'), [], 'USD');
+  const churchName = useLiveQuery(() => getSetting('churchName', ''), [], '');
   setCurrency(currency);
   // The installed app's icon shows how many things need attention (Android, iOS 16.4+, desktop).
   const attention = useLiveQuery(async () => {
@@ -102,14 +103,15 @@ export default function App() {
             <Icon name="back" />
           </button>
         )}
-        <h1>{title}</h1>
+        <h1>{title}{!parts[0] && churchName && <small>{churchName}</small>}</h1>
         {!online && <span className="offline"><Icon name="offline" size={16} /> Offline</span>}
+        {!sub && <a className="avatar" href="#/more" aria-label={`${me.name}, account`}>{me.name.trim().charAt(0).toUpperCase()}</a>}
       </header>
       {demo && <Tour />}
       <main key={currency}>{view}</main>
       {showFab && (
-        <a className="fab" href={parts[0] === 'budget' ? `#/add?budget=${parts[1]}` : '#/add'} aria-label="Add expense">
-          <Icon name="add" size={28} />
+        <a className="fab" href={parts[0] === 'budget' ? `#/add?budget=${parts[1]}` : '#/add'}>
+          <Icon name="camera" /> Add receipt
         </a>
       )}
       <nav className="tabs">

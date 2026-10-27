@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { db, setSetting, uid, type Person } from '../db';
 import { CLIENT_ID, lastDriveBackup, restoreFromDrive, signIn } from '../google';
 import { setMe } from '../session';
-import { GoogleLogo } from '../icons';
+import { GoogleLogo, Icon } from '../icons';
 import { startDemo } from '../demo';
 import { go } from '../router';
 
@@ -47,10 +47,17 @@ export default function Login() {
   }
 
   return (
-    <div className="login">
-      <img src="icon.svg" alt="" />
-      <h1>ChMS Ledger</h1>
-      <p className="muted">Budgets, receipts and paybacks for church ministry teams. Works without internet.</p>
+    <div className="login start">
+      <div className="welcome">
+        <img src="icon.svg" alt="" />
+        <h1>ChMS Ledger</h1>
+        <p>Budgets, receipts and paybacks for church ministry teams.</p>
+      </div>
+      <ul className="features">
+        <li><span><Icon name="wallet" /></span>Give each leader or trip its own budget</li>
+        <li><span><Icon name="camera" /></span>Snap receipts; the amount fills itself in</li>
+        <li><span><Icon name="check" /></span>Approve spending and track paybacks</li>
+      </ul>
       {error && <div className="notice error">{error}</div>}
       {CLIENT_ID && (
         <>
