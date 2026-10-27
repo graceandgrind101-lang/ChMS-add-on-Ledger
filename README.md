@@ -15,6 +15,11 @@ It works fully offline. Data is saved on the device first and, when the user sig
 - **Close out or reset**: unspent funds go back to the church on the ledger, and an optional new round of the same budget starts.
 - **Share between phones without a server**: *More → Send updates* opens the phone's share sheet (WhatsApp, email) with a file; *Receive updates* merges it, keeping the newest version of each budget and expense. A missionary sends expenses to the treasurer, the treasurer sends approvals and budgets back.
 - **Backup**: automatic Google Drive backup (hidden app folder, like WhatsApp), plus a backup file you can save and open.
+- **Budget report**: a one-page report per budget with category breakdown and signature lines; print or save as PDF.
+- **Church setup and invite links**: the treasurer names the church, picks its currency, and sends each person a link that sets up their phone with their budgets.
+- **Demo mode**: *Try the demo* on the sign-in screen loads an example church with a guided 8-step tour.
+
+**Developers:** start with the [developer guide](docs/DEVELOPERS.md).
 
 ## Run it
 
@@ -25,20 +30,20 @@ npm test         # unit tests for budget math, rewards, and receipt reading
 npm run build    # production build in dist/
 ```
 
-Use **More → Load demo data** to fill it with a sample church for demos. **More → Using the app as** switches between people to show the treasurer and missionary views on one device.
+Use **Try the demo** on the sign-in screen (or **More → Load demo data**) for a sample church. **More → Using the app as** switches between people to show the treasurer and missionary views on one device.
 
 ## Turn on Google sign-in and Drive backup
 
 1. In [Google Cloud Console](https://console.cloud.google.com/), create a project and enable the **Google Drive API**.
 2. Set up the **OAuth consent screen** (External). Add the scope `.../auth/drive.appdata`. While in Testing, add the Google accounts that will try it as test users.
-3. Create **Credentials → OAuth client ID → Web application**. Under *Authorized JavaScript origins* add `http://localhost:5173` and your site, e.g. `https://graceandgrind101-lang.github.io`.
+3. Create **Credentials → OAuth client ID → Web application**. Under *Authorized JavaScript origins* add `http://localhost:5173` and your site's origin with no path, e.g. `https://graceandgrind101-lang.github.io`. No redirect URI is needed (the sign-in uses a popup).
 4. For local runs, put the client ID in `.env.local` as `VITE_GOOGLE_CLIENT_ID=...`. The hosted site uses the ID in `.github/workflows/pages.yml`, unless a `GOOGLE_CLIENT_ID` Actions variable is set.
 
 Without a client ID the app runs in device-only mode.
 
 ## Host it free on GitHub Pages
 
-In the repo, open **Settings → Pages** and set *Source* to **GitHub Actions**. Every push to `main` then tests, builds, and publishes the app. On a phone, open the site and choose *Add to Home screen* to install it.
+In the repo, open **Settings → Pages** and set *Source* to **GitHub Actions**. Every push to `main` then tests, builds, and publishes the app. Pull requests run the same tests and build as a check. On a phone, open the site and choose *Add to Home screen* to install it.
 
 ## How it is built
 
