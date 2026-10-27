@@ -55,9 +55,15 @@ export default function BudgetDetail({ id, me, receiptId }: { id: string; me: Pe
           {manager && <button onClick={() => setPanel(panel === 'topup' ? 'none' : 'topup')}>Add funds</button>}
           {manager && <button onClick={() => setPanel(panel === 'close' ? 'none' : 'close')}>Close or reset</button>}
           <a className="btn" href={`#/ledger?budget=${budget.id}`}>Ledger</a>
+          <a className="btn" href={`#/report/${budget.id}`}>Report</a>
         </div>
       )}
-      {budget.status === 'closed' && <div className="actions"><a className="btn" href={`#/ledger?budget=${budget.id}`}>Ledger</a></div>}
+      {budget.status === 'closed' && (
+        <div className="actions">
+          <a className="btn primary" href={`#/report/${budget.id}`}>Report (PDF)</a>
+          <a className="btn" href={`#/ledger?budget=${budget.id}`}>Ledger</a>
+        </div>
+      )}
       {panel === 'topup' && <TopUp onDone={() => setPanel('none')} run={(amt, why) => topUpBudget(budget, amt, why, me)} />}
       {panel === 'close' && <ClosePanel budget={budget} spent={s.approved} pending={s.pending} me={me} onDone={() => setPanel('none')} />}
 

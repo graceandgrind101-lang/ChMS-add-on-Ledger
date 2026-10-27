@@ -3,6 +3,7 @@ import { db, setSetting, uid, type Person } from '../db';
 import { CLIENT_ID, lastDriveBackup, restoreFromDrive, signIn } from '../google';
 import { setMe } from '../session';
 import { GoogleLogo } from '../icons';
+import { startDemo } from '../demo';
 
 /**
  * First screen. Google sign-in links the device to the user's Drive backup; if a backup
@@ -60,6 +61,9 @@ export default function Login() {
       <label htmlFor="name" style={{ textAlign: 'left' }}>Use without Google (this device only)</label>
       <input id="name" placeholder="Your name" value={name} onChange={(e) => setName(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && local()} />
       <button className="primary" onClick={local}>Continue on this device</button>
+      <div className="divider"><span>or</span></div>
+      <button className="demo-btn" onClick={() => startDemo()}>Try the demo</button>
+      <p className="muted"><small>A guided tour with an example church. Exit the demo any time to clear it.</small></p>
     </div>
   );
 }

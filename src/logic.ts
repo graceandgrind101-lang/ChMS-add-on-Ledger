@@ -141,3 +141,13 @@ export function parseReceiptText(text: string): ParsedReceipt {
   else if (all.length) result.total = Math.max(...all);
   return result;
 }
+
+/** Approved spending per category, biggest first, for the budget report. */
+export function spendByCategory(expenses: Expense[]): { category: string; total: Cents }[] {
+  const totals = new Map<string, Cents>();
+  for (const e of expenses) {
+    if (e.status !== 'approved') continue;
+    totals.set(e.category, (totals.get(e.category) ?? 0) + e.amount);
+  }
+  return [...totals].map(([category, total]) => ({ category, total })).sort((a, b) => b.total - a.total);
+}

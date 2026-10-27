@@ -8,6 +8,7 @@ import { compressImage, readReceipt } from '../ocr';
 import { canManage } from '../session';
 import { go } from '../router';
 import { Icon } from '../icons';
+import { isDemo, sampleReceipt } from '../demo';
 
 const CATEGORIES = ['Travel', 'Lodging', 'Food', 'Ministry supplies', 'Transport', 'Venue', 'Printing', 'Gifts', 'Medical', 'Other'];
 
@@ -18,6 +19,7 @@ export default function AddExpense({ me, budgetId }: { me: Person; budgetId?: st
     return manager ? all : all.filter((b) => b.assigneeId === me.id);
   }, [me.id, manager]);
 
+  const demo = useLiveQuery(isDemo, [], false);
   const [source, setSource] = useState<Expense['source']>('camera');
   const [image, setImage] = useState<Blob | null>(null);
   const [preview, setPreview] = useState('');
@@ -100,6 +102,9 @@ export default function AddExpense({ me, budgetId }: { me: Person; budgetId?: st
           <Icon name="mail" size={28} />Email receipt
         </label>
       </div>
+      {demo && !image && (
+        <div className="actions"><button type="button" onClick={async () => onFile(await sampleReceipt(), 'gallery')}>Try a sample receipt</button></div>
+      )}
 
       {source === 'email' && !image && (
         <>
