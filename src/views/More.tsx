@@ -7,11 +7,13 @@ import { toCsv, download, shareOrDownload } from '../csv';
 import { formatMoney } from '../money';
 import { loadSampleData } from '../sample';
 import { canManage, linkSamePerson, ROLE_LABEL, setMe } from '../session';
+import { getTheme, setTheme, type Theme } from '../theme';
 
 export default function More({ me }: { me: Person }) {
   return (
     <>
       <Rewards />
+      <Appearance />
       <Account me={me} />
       {canManage(me) && <People me={me} />}
       <Data me={me} />
@@ -55,6 +57,24 @@ function Rewards() {
           </table>
         </div>
       )}
+    </>
+  );
+}
+
+function Appearance() {
+  const [theme, set] = useState<Theme>(getTheme);
+  const choose = (t: Theme) => {
+    setTheme(t);
+    set(t);
+  };
+  return (
+    <>
+      <h2>Appearance</h2>
+      <div className="seg" role="group" aria-label="Color theme">
+        <button className={theme === 'light' ? 'on' : ''} onClick={() => choose('light')}>Light</button>
+        <button className={theme === 'dark' ? 'on' : ''} onClick={() => choose('dark')}>Dark</button>
+        <button className={theme === 'system' ? 'on' : ''} onClick={() => choose('system')}>Match device</button>
+      </div>
     </>
   );
 }
