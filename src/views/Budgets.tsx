@@ -2,7 +2,7 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { db, getSetting, setSetting, type Person } from '../db';
 import { useState } from 'react';
 import { canManage } from '../session';
-import { summarize } from '../logic';
+import { reminders, summarize } from '../logic';
 import { formatMoney } from '../money';
 import { today } from '../db';
 import { BudgetCard } from './parts';
@@ -18,6 +18,7 @@ export default function Budgets({ me }: { me: Person }) {
   if (!data) return null;
 
   const active = data.budgets.filter((b) => b.status === 'active');
+  const todo = reminders(data.budgets, data.expenses, today(), manager);
   const closed = data.budgets.filter((b) => b.status === 'closed');
   const totals = active.reduce(
     (t, b) => {
@@ -34,6 +35,14 @@ export default function Budgets({ me }: { me: Person }) {
         <div className="big">{formatMoney(totals.left)}</div>
         <small>of {formatMoney(totals.given)} given · {active.length} active budget{active.length === 1 ? '' : 's'}</small>
       </div>
+      {todo.length > 0 && (
+        <div className="card reminders">
+          <b>Needs attention</b>
+          {todo.map((r, i) => (
+            <a key={i} className={`reminder ${r.tone}`} href={`#/budget/${r.budgetId}`}>{r.text}</a>
+          ))}
+        </div>
+      )}
       {manager && !data.church && <ChurchSetup />}
       {manager && data.church && data.people < 2 && (
         <div className="notice">Next: add your leaders and missionaries under <a href="#/more">More → Church and people</a>, then send each one an invite link.</div>

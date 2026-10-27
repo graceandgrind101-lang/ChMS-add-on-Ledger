@@ -178,3 +178,15 @@ button.small { padding: 4px 12px; font-size: 13px; margin-left: auto; margin-rig
 .paste-invite { margin-top: 20px; text-align: left; }
 .paste-invite summary { cursor: pointer; color: var(--blue); text-align: center; font-size: 14px; }
 .legal { margin-top: 28px; font-size: 13px; color: var(--muted); }
+.small-btn { padding: 4px 14px; font-size: 13px; }
+.search-link { display: block; text-align: center; margin-bottom: 4px; }
+.filter-chips { margin: 10px 0 4px; }
+.filter-chips .chip { border: 1px solid var(--line); cursor: pointer; font: inherit; font-size: 13px; padding: 4px 12px; }
+.filter-chips .chip.on { background: var(--blue-soft); color: var(--blue); border-color: transparent; }
+.more-filters { margin: 6px 0; }
+.more-filters summary { cursor: pointer; color: var(--blue); font-size: 14px; }
+.search-summary { margin: 8px 0 4px; }
+.reminders b { display: block; margin-bottom: 6px; }
+.reminder { display: block; padding: 8px 0 8px 12px; border-left: 3px solid var(--amber); color: var(--text); font-size: 14px; }
+.reminder + .reminder { margin-top: 6px; }
+.reminder.critical { border-left-color: var(--red); }

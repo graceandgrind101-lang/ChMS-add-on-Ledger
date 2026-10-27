@@ -1,4 +1,5 @@
-import type { Budget, Expense } from '../db';
+import type { Budget, Expense, Person } from '../db';
+import { canEditExpense, withdrawExpense } from '../actions';
 import { budgetAlerts, summarize } from '../logic';
 import { formatMoney } from '../money';
 import { today } from '../db';
@@ -33,6 +34,7 @@ export function BudgetCard({ budget, expenses, link = true }: { budget: Budget; 
 
 export function StatusChip({ e }: { e: Expense }) {
   if (e.status === 'pending') return <span className="chip info">Waiting for approval</span>;
+  if (e.status === 'withdrawn') return <span className="chip">Withdrawn</span>;
   if (e.status === 'rejected') return <span className="chip critical">Rejected{e.rejectReason ? `: ${e.rejectReason}` : ''}</span>;
   if (e.reimbursement === 'owed') return <span className="chip warning">Payback owed</span>;
   if (e.reimbursement === 'paid') return <span className="chip good">Paid back</span>;
@@ -51,6 +53,17 @@ export function ExpenseRow({ e, children }: { e: Expense; children?: React.React
       </div>
       <div className="chips"><StatusChip e={e} />{e.receiptId && <a className="chip" href={`#/budget/${e.budgetId}?receipt=${e.receiptId}`}>Receipt</a>}</div>
       {children}
+    </div>
+  );
+}
+
+/** Edit and Withdraw for an expense that has not been approved yet. */
+export function ExpenseActions({ e, budget, me }: { e: Expense; budget?: Budget; me: Person }) {
+  if (!canEditExpense(e, budget, me)) return null;
+  return (
+    <div className="actions">
+      <a className="btn small-btn" href={`#/add?edit=${e.id}`}>{e.status === 'rejected' ? 'Fix and resubmit' : 'Edit'}</a>
+      <button className="small-btn" onClick={() => confirm('Withdraw this expense? It will no longer count against the budget.') && withdrawExpense(e)}>Withdraw</button>
     </div>
   );
 }

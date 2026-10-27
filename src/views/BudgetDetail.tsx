@@ -6,12 +6,14 @@ import { budgetAlerts, scoreCloseOut, summarize } from '../logic';
 import { formatMoney, parseMoney, toInput } from '../money';
 import { canManage } from '../session';
 import { go } from '../router';
-import { BudgetCard, ExpenseRow } from './parts';
+import { budgetEndEvent } from '../calendar';
+import { download } from '../csv';
+import { BudgetCard, ExpenseActions, ExpenseRow } from './parts';
 
 export default function BudgetDetail({ id, me, receiptId }: { id: string; me: Person; receiptId?: string }) {
   const data = useLiveQuery(async () => ({
     budget: await db.budgets.get(id),
-    expenses: await db.expenses.where('budgetId').equals(id).reverse().sortBy('createdAt'),
+    expenses: (await db.expenses.where('budgetId').equals(id).reverse().sortBy('createdAt')).filter((e) => e.status !== 'withdrawn'),
     closeout: await db.closeouts.where('budgetId').equals(id).first(),
   }), [id]);
   const [panel, setPanel] = useState<'none' | 'topup' | 'close'>('none');
@@ -56,6 +58,9 @@ export default function BudgetDetail({ id, me, receiptId }: { id: string; me: Pe
           {manager && <button onClick={() => setPanel(panel === 'close' ? 'none' : 'close')}>Close or reset</button>}
           <a className="btn" href={`#/ledger?budget=${budget.id}`}>Ledger</a>
           <a className="btn" href={`#/report/${budget.id}`}>Report</a>
+          {budget.endDate && budget.endDate >= today() && (
+            <button onClick={() => download(`${budget.name.replace(/[^\w]+/g, '-')}-ends.ics`, budgetEndEvent(budget, manager), 'text/calendar')}>Remind me in my calendar</button>
+          )}
         </div>
       )}
       {budget.status === 'closed' && (
@@ -69,7 +74,7 @@ export default function BudgetDetail({ id, me, receiptId }: { id: string; me: Pe
 
       <h2>Expenses</h2>
       {expenses.length === 0 && <p className="muted">No expenses yet.</p>}
-      {expenses.map((e) => <ExpenseRow key={e.id} e={e} />)}
+      {expenses.map((e) => <ExpenseRow key={e.id} e={e}><ExpenseActions e={e} budget={budget} me={me} /></ExpenseRow>)}
     </>
   );
 }

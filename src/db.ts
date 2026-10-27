@@ -29,7 +29,8 @@ export interface Budget {
   updatedAt?: number;
 }
 
-export type ExpenseStatus = 'pending' | 'approved' | 'rejected';
+/** 'withdrawn' replaces deleting, so the removal reaches other phones when updates are shared. */
+export type ExpenseStatus = 'pending' | 'approved' | 'rejected' | 'withdrawn';
 
 export interface Expense {
   id: string;
