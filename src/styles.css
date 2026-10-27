@@ -167,3 +167,13 @@ body.touring .fab { display: none; }
 .demo-bar button { padding: 4px 12px; font-size: 13px; }
 .demo-btn { width: 100%; border-style: dashed; }
 @media print { .tour, .demo-bar { display: none !important; } }
+
+/* Church setup and invites */
+button.small { padding: 4px 12px; font-size: 13px; margin-left: auto; margin-right: 8px; }
+.setup { border-left: 4px solid var(--blue); }
+.setup p { margin: 4px 0 8px; }
+.login .church-name { margin-top: 14px; font-weight: 600; color: var(--blue); text-transform: uppercase; letter-spacing: .06em; font-size: 13px; }
+.join-budgets { text-align: left; margin: 16px 0 4px; }
+.join-budgets .row + .row { margin-top: 6px; }
+.paste-invite { margin-top: 20px; text-align: left; }
+.paste-invite summary { cursor: pointer; color: var(--blue); text-align: center; font-size: 14px; }

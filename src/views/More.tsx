@@ -8,6 +8,7 @@ import { formatMoney } from '../money';
 import { loadSampleData } from '../sample';
 import { canManage, linkSamePerson, ROLE_LABEL, setMe } from '../session';
 import { getTheme, setTheme, type Theme } from '../theme';
+import { inviteLink } from '../invite';
 
 export default function More({ me }: { me: Person }) {
   return (
@@ -136,19 +137,43 @@ function Account({ me }: { me: Person }) {
   );
 }
 
+/** Sends a person their invite link through the phone's share sheet, or copies it. */
+async function sendInvite(person: Person, me: Person): Promise<string> {
+  const url = await inviteLink(person, me);
+  const church = await getSetting('churchName', '');
+  const text = `Hi ${person.name.split(' ')[0]}, ${church ? `${church} uses` : "we're using"} ChMS Ledger to track ministry budgets and receipts. Open this link on your phone to join:`;
+  if (navigator.share) {
+    try {
+      await navigator.share({ title: 'Join ChMS Ledger', text, url });
+      return `Invite sent to ${person.name}.`;
+    } catch (e) {
+      if ((e as Error).name === 'AbortError') return '';
+    }
+  }
+  await navigator.clipboard.writeText(`${text} ${url}`);
+  return `Invite link for ${person.name} copied. Paste it into WhatsApp, a text or an email.`;
+}
+
 function People({ me }: { me: Person }) {
   const people = useLiveQuery(() => db.people.orderBy('name').toArray(), [], []);
+  const church = useLiveQuery(() => getSetting('churchName', ''), [], '');
+  const [msg, setMsg] = useState('');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [role, setRole] = useState<Role>('missionary');
   const admins = people.filter(canManage).length;
   return (
     <>
-      <h2>People with permission</h2>
+      <h2>Church and people</h2>
+      <label htmlFor="church-name">Church name</label>
+      <input id="church-name" key={church} defaultValue={church} placeholder="e.g. Grace Community Church" onBlur={(e) => setSetting('churchName', e.target.value.trim())} />
+      <p className="muted"><small>Add each leader, volunteer or missionary, give them a budget, then send their invite link. Opening it sets up their phone with their budgets. Send it again any time to share new budgets.</small></p>
+      {msg && <div className="notice">{msg}</div>}
       <div className="card">
         {people.map((p) => (
           <div key={p.id} className="row list-item">
             <div>{p.name}{p.email && <div><small className="muted">{p.email}</small></div>}</div>
+            {p.id !== me.id && <button className="small" onClick={async () => setMsg(await sendInvite(p, me).catch((e: Error) => e.message))}>Invite</button>}
             <select style={{ width: 'auto' }} value={p.role} disabled={p.id === me.id && canManage(p) && admins === 1}
               onChange={(e) => db.people.update(p.id, { role: e.target.value as Role })}>
               {(Object.keys(ROLE_LABEL) as Role[]).map((r) => <option key={r} value={r}>{ROLE_LABEL[r]}</option>)}

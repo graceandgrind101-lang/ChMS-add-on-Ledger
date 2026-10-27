@@ -4,6 +4,7 @@ import { CLIENT_ID, lastDriveBackup, restoreFromDrive, signIn } from '../google'
 import { setMe } from '../session';
 import { GoogleLogo } from '../icons';
 import { startDemo } from '../demo';
+import { go } from '../router';
 
 /**
  * First screen. Google sign-in links the device to the user's Drive backup; if a backup
@@ -64,6 +65,14 @@ export default function Login() {
       <div className="divider"><span>or</span></div>
       <button className="demo-btn" onClick={() => startDemo()}>Try the demo</button>
       <p className="muted"><small>A guided tour with an example church. Exit the demo any time to clear it.</small></p>
+      <details className="paste-invite">
+        <summary>Have an invite link?</summary>
+        <p className="muted"><small>If the link opened in your browser instead of the app, copy it and paste it here.</small></p>
+        <input aria-label="Invite link" placeholder="Paste the invite link" onChange={(e) => {
+          const code = e.target.value.match(/[?&]i=([A-Za-z0-9_-]+)/)?.[1];
+          if (code) go(`/join?i=${code}`);
+        }} />
+      </details>
     </div>
   );
 }
