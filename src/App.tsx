@@ -3,6 +3,7 @@ import { db } from './db';
 import { canManage, useMe } from './session';
 import { useOnline, useRoute } from './router';
 import { useAutoBackup } from './useAutoBackup';
+import { Icon } from './icons';
 import Login from './views/Login';
 import Budgets from './views/Budgets';
 import BudgetDetail from './views/BudgetDetail';
@@ -58,23 +59,35 @@ export default function App() {
       view = <Budgets me={me} />;
   }
   const tab = parts[0] === 'budget' || parts[0] === 'new-budget' || !parts[0] ? 'budgets' : parts[0];
+  // Pages opened from another page get a back arrow instead of being a tab of their own.
+  const sub = parts[0] === 'budget' || parts[0] === 'new-budget' || parts[0] === 'add';
+  const showFab = !parts[0] || (parts[0] === 'budget' && parts[1]);
 
   return (
     <>
       <header className="top">
+        {sub && (
+          <button className="icon-btn" aria-label="Back" onClick={() => (history.length > 1 ? history.back() : (location.hash = '#/'))}>
+            <Icon name="back" />
+          </button>
+        )}
         <h1>{title}</h1>
-        {!online && <span className="offline">Offline, saved on this device</span>}
+        {!online && <span className="offline"><Icon name="offline" size={16} /> Offline</span>}
       </header>
       <main>{view}</main>
-      <nav className="tabs">
-        <a href="#/" className={tab === 'budgets' ? 'on' : ''}><span className="ico">▤</span>Budgets</a>
-        <a href="#/add" className={tab === 'add' ? 'on' : ''}><span className="ico">＋</span>Add</a>
-        <a href="#/ledger" className={tab === 'ledger' ? 'on' : ''}><span className="ico">☰</span>Ledger</a>
-        <a href="#/approvals" className={tab === 'approvals' ? 'on' : ''}>
-          <span className="ico">✓</span>{canManage(me) ? 'Approvals' : 'Mine'}
-          {canManage(me) && waiting > 0 && <span className="count">{waiting}</span>}
+      {showFab && (
+        <a className="fab" href={parts[0] === 'budget' ? `#/add?budget=${parts[1]}` : '#/add'} aria-label="Add expense">
+          <Icon name="add" size={28} />
         </a>
-        <a href="#/more" className={tab === 'more' ? 'on' : ''}><span className="ico">⋯</span>More</a>
+      )}
+      <nav className="tabs">
+        <a href="#/" className={tab === 'budgets' ? 'on' : ''}><span className="pill"><Icon name="wallet" /></span>Budgets</a>
+        <a href="#/ledger" className={tab === 'ledger' ? 'on' : ''}><span className="pill"><Icon name="receipt" /></span>Ledger</a>
+        <a href="#/approvals" className={tab === 'approvals' ? 'on' : ''}>
+          <span className="pill"><Icon name="check" />{canManage(me) && waiting > 0 && <span className="count">{waiting}</span>}</span>
+          {canManage(me) ? 'Approvals' : 'Mine'}
+        </a>
+        <a href="#/more" className={tab === 'more' ? 'on' : ''}><span className="pill"><Icon name="more" /></span>More</a>
       </nav>
     </>
   );

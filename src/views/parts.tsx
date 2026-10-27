@@ -2,24 +2,24 @@ import type { Budget, Expense } from '../db';
 import { budgetAlerts, summarize } from '../logic';
 import { formatMoney } from '../money';
 import { today } from '../db';
+import { Ring } from '../icons';
 
 export function BudgetCard({ budget, expenses, link = true }: { budget: Budget; expenses: Expense[]; link?: boolean }) {
   const s = summarize(budget, expenses, today());
   const alerts = budgetAlerts(s, budget.status);
-  const pct = Math.min(100, Math.round(s.usedPct * 100));
   const body = (
     <>
-      <div className="row">
-        <div>
-          <div style={{ fontWeight: 500 }}>{budget.name}</div>
+      <div className="budget-row">
+        <Ring pctLeft={s.allocated > 0 ? s.left / s.allocated : 0} over={s.left < 0} />
+        <div className="budget-main">
+          <div className="budget-name">{budget.name}</div>
           <small className="muted">{budget.assigneeName}{budget.cycle > 1 ? ` · round ${budget.cycle}` : ''}</small>
         </div>
-        <div style={{ textAlign: 'right' }}>
-          <div style={{ fontWeight: 500, color: s.left < 0 ? 'var(--red)' : undefined }}>{formatMoney(s.left)}</div>
+        <div className="budget-money">
+          <div className={s.left < 0 ? 'neg' : ''}>{formatMoney(s.left)}</div>
           <small className="muted">left of {formatMoney(s.allocated)}</small>
         </div>
       </div>
-      <div className="bar"><div className={s.left < 0 ? 'over' : ''} style={{ width: `${pct}%` }} /></div>
       <div className="chips">
         {budget.status === 'closed' && <span className="chip">Closed</span>}
         {s.pending > 0 && <span className="chip info">{formatMoney(s.pending)} waiting for approval</span>}

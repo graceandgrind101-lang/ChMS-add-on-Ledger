@@ -27,20 +27,18 @@ export default function Budgets({ me }: { me: Person }) {
 
   return (
     <>
-      <div className="card">
-        <small className="muted">{manager ? 'Left across all active budgets' : 'Left in your budgets'}</small>
+      <div className="hero">
+        <small>{manager ? 'Left across all active budgets' : 'Left in your budgets'}</small>
         <div className="big">{formatMoney(totals.left)}</div>
-        <small className="muted">of {formatMoney(totals.given)} given</small>
+        <small>of {formatMoney(totals.given)} given · {active.length} active budget{active.length === 1 ? '' : 's'}</small>
       </div>
-      <div className="actions">
-        {manager && <a className="btn primary" href="#/new-budget">New budget</a>}
-        <a className="btn" href="#/add">Add expense</a>
-      </div>
+      {manager && <div className="actions"><a className="btn primary" href="#/new-budget">New budget</a></div>}
       {active.length === 0 && (
         <p className="muted">
           {manager ? 'No budgets yet. A budget must be set before expenses can be tracked. Create one, or load the demo data under More.' : 'No budget has been assigned to you yet.'}
         </p>
       )}
+      {active.length > 0 && closed.length > 0 && <h2>Active</h2>}
       {active.map((b) => <BudgetCard key={b.id} budget={b} expenses={data.expenses} />)}
       {closed.length > 0 && <h2>Closed</h2>}
       {closed.map((b) => <BudgetCard key={b.id} budget={b} expenses={data.expenses} />)}
