@@ -6,6 +6,7 @@ import { summarize } from '../logic';
 import { formatMoney } from '../money';
 import { today } from '../db';
 import { BudgetCard } from './parts';
+import CurrencySelect from './CurrencySelect';
 
 export default function Budgets({ me }: { me: Person }) {
   const manager = canManage(me);
@@ -54,12 +55,18 @@ export default function Budgets({ me }: { me: Person }) {
 /** First-run card for the treasurer: name the church, then invite people. */
 function ChurchSetup() {
   const [name, setName] = useState('');
+  const [currency, setCurrency] = useState('USD');
+  async function save() {
+    await setSetting('currency', currency);
+    await setSetting('churchName', name.trim());
+  }
   return (
     <div className="card setup">
       <b>Set up your church</b>
       <p className="muted">Your church name appears on invites and budget reports.</p>
       <input aria-label="Church name" placeholder="e.g. Grace Community Church" value={name} onChange={(e) => setName(e.target.value)} />
-      <div className="actions"><button className="primary" disabled={!name.trim()} onClick={() => setSetting('churchName', name.trim())}>Save</button></div>
+      <CurrencySelect id="setup-currency" value={currency} onChange={setCurrency} />
+      <div className="actions"><button className="primary" disabled={!name.trim()} onClick={save}>Save</button></div>
     </div>
   );
 }

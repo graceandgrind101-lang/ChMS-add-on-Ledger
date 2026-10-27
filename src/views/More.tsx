@@ -9,6 +9,7 @@ import { loadSampleData } from '../sample';
 import { canManage, linkSamePerson, ROLE_LABEL, setMe } from '../session';
 import { getTheme, setTheme, type Theme } from '../theme';
 import { inviteLink } from '../invite';
+import CurrencySelect from './CurrencySelect';
 
 export default function More({ me }: { me: Person }) {
   return (
@@ -167,6 +168,7 @@ function People({ me }: { me: Person }) {
       <h2>Church and people</h2>
       <label htmlFor="church-name">Church name</label>
       <input id="church-name" key={church} defaultValue={church} placeholder="e.g. Grace Community Church" onBlur={(e) => setSetting('churchName', e.target.value.trim())} />
+      <CurrencySelect />
       <p className="muted"><small>Add each leader, volunteer or missionary, give them a budget, then send their invite link. Opening it sets up their phone with their budgets. Send it again any time to share new budgets.</small></p>
       {msg && <div className="notice">{msg}</div>}
       <div className="card">
@@ -249,17 +251,15 @@ function Data({ me }: { me: Person }) {
         <button onClick={saveFile}>Save backup file</button>
         <label className="btn" style={{ margin: 0, color: 'var(--blue)' }}>Restore backup file<input type="file" accept="application/json" hidden onChange={(e) => openFile(e.target.files?.[0])} /></label>
       </div>
-      {canManage(me) && (
-        <div className="actions">
-          <button onClick={async () => { await loadSampleData(me); setMsg('Demo data added.'); }}>Load demo data</button>
-          <button className="danger" onClick={async () => {
-            if (!confirm('Erase everything on this device? Make a backup first.')) return;
-            await db.delete();
-            location.reload();
-          }}>Erase this device</button>
-        </div>
-      )}
-      <p className="muted"><small>ChMS Ledger keeps your data on this device first, so it works without internet.</small></p>
+      <div className="actions">
+        {canManage(me) && <button onClick={async () => { await loadSampleData(me); setMsg('Demo data added.'); }}>Load demo data</button>}
+        <button className="danger" onClick={async () => {
+          if (!confirm('Erase everything on this device? Make a backup first.')) return;
+          await db.delete();
+          location.reload();
+        }}>Erase this device</button>
+      </div>
+      <p className="muted"><small>ChMS Ledger keeps your data on this device first, so it works without internet. <a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a></small></p>
     </>
   );
 }

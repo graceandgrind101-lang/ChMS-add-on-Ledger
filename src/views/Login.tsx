@@ -73,6 +73,7 @@ export default function Login() {
           if (code) go(`/join?i=${code}`);
         }} />
       </details>
+      <p className="legal"><a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a></p>
     </div>
   );
 }
