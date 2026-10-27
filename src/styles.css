@@ -175,8 +175,8 @@ button.small { padding: 4px 12px; font-size: 13px; margin-left: auto; margin-rig
 .login .church-name { margin-top: 14px; font-weight: 600; color: var(--blue); text-transform: uppercase; letter-spacing: .06em; font-size: 13px; }
 .join-budgets { text-align: left; margin: 16px 0 4px; }
 .join-budgets .row + .row { margin-top: 6px; }
+.install { border-left: 4px solid var(--blue); margin-top: 0; }
+.install p { margin: 4px 0 0; }
 .paste-invite { margin-top: 20px; text-align: left; }
 .paste-invite summary { cursor: pointer; color: var(--blue); text-align: center; font-size: 14px; }
 .legal { margin-top: 28px; font-size: 13px; color: var(--muted); }
-.install { border-left: 4px solid var(--blue); margin-top: 0; }
-.install p { margin: 4px 0 0; }
