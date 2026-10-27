@@ -8,6 +8,7 @@ export interface Person {
   name: string;
   email?: string;
   role: Role;
+  updatedAt?: number;
 }
 
 export interface Budget {
@@ -25,6 +26,7 @@ export interface Budget {
   /** The budget this one renewed, when it was reset. */
   previousId?: string;
   createdAt: number;
+  updatedAt?: number;
 }
 
 export type ExpenseStatus = 'pending' | 'approved' | 'rejected';
@@ -50,6 +52,7 @@ export interface Expense {
   decidedAt?: number;
   rejectReason?: string;
   createdAt: number;
+  updatedAt?: number;
 }
 
 export interface Receipt {
@@ -116,6 +119,13 @@ class LedgerDB extends Dexie {
       closeouts: 'id, budgetId, assigneeId, closedAt',
       settings: 'key',
     });
+    // Stamp every change so updates shared between phones can be merged newest-wins.
+    for (const table of [this.people, this.budgets, this.expenses] as Table<{ updatedAt?: number }, string>[]) {
+      table.hook('creating', (_key, obj) => {
+        obj.updatedAt ??= Date.now();
+      });
+      table.hook('updating', (mods) => ('updatedAt' in mods ? undefined : { updatedAt: Date.now() }));
+    }
   }
 }
 
