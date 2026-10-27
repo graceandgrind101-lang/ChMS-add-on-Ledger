@@ -24,7 +24,7 @@ export default function App() {
   }, [], 0);
   useAutoBackup(online);
 
-  if (!ready) return null;
+  if (!ready) return <p className="muted" style={{ padding: 16 }}>Loading…</p>;
   if (!me) return <Login />;
 
   let view;
