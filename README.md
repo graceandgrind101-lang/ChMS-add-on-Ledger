@@ -17,6 +17,7 @@ It works fully offline. Data is saved on the device first and, when the user sig
 - **Backup**: automatic Google Drive backup (hidden app folder, like WhatsApp), plus a backup file you can save and open.
 - **Budget report**: a one-page report per budget with category breakdown and signature lines; print or save as PDF.
 - **Church setup and invite links**: the treasurer names the church, picks its currency, and sends each person a link that sets up their phone with their budgets.
+- **Fix, find and remember**: edit or withdraw an expense before approval, resubmit a rejected one, search and filter all expenses, a *Needs attention* list, and calendar alerts before a budget ends.
 - **Demo mode**: *Try the demo* on the sign-in screen loads an example church with a guided 8-step tour.
 
 **Developers:** start with the [developer guide](docs/DEVELOPERS.md).

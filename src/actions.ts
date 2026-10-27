@@ -1,6 +1,7 @@
 import { db, today, uid, type Budget, type Expense, type LedgerEntry, type Person } from './db';
 import { formatMoney, type Cents } from './money';
 import { scoreCloseOut } from './logic';
+import { canManage } from './session';
 
 function post(entry: Omit<LedgerEntry, 'id' | 'createdAt'>) {
   return db.ledger.add({ ...entry, id: uid(), createdAt: Date.now() });
@@ -45,6 +46,24 @@ export async function approveExpense(expense: Expense, by: Person) {
       moneyIn: 0, moneyOut: expense.amount, by: by.name,
     });
   });
+}
+
+/** Who may still change an expense: its spender or a manager, until it is approved. */
+export function canEditExpense(expense: Expense, budget: Budget | undefined, me: Person) {
+  const open = expense.status === 'pending' || expense.status === 'rejected';
+  return open && budget?.status === 'active' && (canManage(me) || expense.spenderId === me.id);
+}
+
+/** Saves changes to an unapproved expense. A rejected one goes back for approval. */
+export async function updateExpense(expense: Expense, changes: Partial<Pick<Expense, 'budgetId' | 'date' | 'merchant' | 'category' | 'amount' | 'notes' | 'paidWith' | 'receiptId' | 'ocrText' | 'source'>>) {
+  if (expense.status === 'approved' || expense.status === 'withdrawn') throw new Error('Approved expenses can no longer be changed.');
+  await db.expenses.update(expense.id, { ...changes, status: 'pending', rejectReason: undefined, decidedBy: undefined, decidedAt: undefined });
+}
+
+/** Takes back an unapproved expense. It stays on record as withdrawn rather than being deleted. */
+export async function withdrawExpense(expense: Expense) {
+  if (expense.status === 'approved') throw new Error('Approved expenses can no longer be withdrawn.');
+  await db.expenses.update(expense.id, { status: 'withdrawn' });
 }
 
 export function rejectExpense(expense: Expense, reason: string, by: Person) {

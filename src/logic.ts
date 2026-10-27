@@ -1,5 +1,5 @@
 import type { Budget, Expense } from './db';
-import type { Cents } from './money';
+import { formatMoney, type Cents } from './money';
 
 export interface BudgetSummary {
   allocated: Cents;
@@ -150,4 +150,36 @@ export function spendByCategory(expenses: Expense[]): { category: string; total:
     totals.set(e.category, (totals.get(e.category) ?? 0) + e.amount);
   }
   return [...totals].map(([category, total]) => ({ category, total })).sort((a, b) => b.total - a.total);
+}
+
+export interface Reminder {
+  budgetId: string;
+  tone: 'critical' | 'warning';
+  text: string;
+}
+
+/**
+ * What needs someone's attention today, most urgent first: budgets past their end date that
+ * still need a report, budgets ending within a week, and overspent ones. Managers also see
+ * expenses waiting for them; the person holding a budget is told to send in their receipts.
+ */
+export function reminders(budgets: Budget[], expenses: Expense[], onDate: string, manager: boolean): Reminder[] {
+  const out: Reminder[] = [];
+  for (const b of budgets) {
+    if (b.status !== 'active') continue;
+    const s = summarize(b, expenses, onDate);
+    const who = manager ? `${b.assigneeName}'s ${b.name}` : b.name;
+    if (s.daysLeft !== null && s.daysLeft < 0) {
+      out.push({ budgetId: b.id, tone: 'critical', text: manager ? `${who} ended ${-s.daysLeft} day${s.daysLeft === -1 ? '' : 's'} ago. Review the report and close it.` : `${who} has ended. Send in any last receipts so it can be closed.` });
+    } else if (s.daysLeft !== null && s.daysLeft <= 7) {
+      const when = s.daysLeft === 0 ? 'today' : `in ${s.daysLeft} day${s.daysLeft === 1 ? '' : 's'}`;
+      out.push({ budgetId: b.id, tone: 'warning', text: manager ? `${who} ends ${when}.` : `${who} ends ${when}. Add your receipts ${s.daysLeft === 0 ? 'today' : 'before then'}.` });
+    }
+    if (s.left < 0) out.push({ budgetId: b.id, tone: 'critical', text: `${who} is over budget by ${formatMoney(-s.left)}.` });
+    if (manager && s.pending > 0) {
+      const n = expenses.filter((e) => e.budgetId === b.id && e.status === 'pending').length;
+      out.push({ budgetId: b.id, tone: 'warning', text: `${who} has ${n} expense${n === 1 ? '' : 's'} waiting for your approval.` });
+    }
+  }
+  return out.sort((a, b) => (a.tone === b.tone ? 0 : a.tone === 'critical' ? -1 : 1));
 }

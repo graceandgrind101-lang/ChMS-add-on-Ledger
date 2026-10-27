@@ -10,10 +10,12 @@ import { canManage, linkSamePerson, ROLE_LABEL, setMe } from '../session';
 import { getTheme, setTheme, type Theme } from '../theme';
 import { inviteLink } from '../invite';
 import CurrencySelect from './CurrencySelect';
+import { useInstall } from '../install';
 
 export default function More({ me }: { me: Person }) {
   return (
     <>
+      <Install />
       <Rewards />
       <Appearance />
       <Account me={me} />
@@ -60,6 +62,26 @@ function Rewards() {
         </div>
       )}
     </>
+  );
+}
+
+/** One-tap install where the browser allows it, otherwise the steps for this phone. */
+function Install() {
+  const { state, install } = useInstall();
+  if (state === 'installed') return null;
+  return (
+    <div className="card install">
+      <b>Install ChMS Ledger</b>
+      {state === 'added' && <p className="muted">Installed. Open it from your home screen from now on.</p>}
+      {state === 'ready' && (
+        <>
+          <p className="muted">Add it to your home screen. It opens full screen and works without internet.</p>
+          <div className="actions"><button className="primary" onClick={install}>Install app</button></div>
+        </>
+      )}
+      {state === 'ios' && <p className="muted">In Safari, tap the Share button <span aria-hidden>⎙</span>, then <b>Add to Home Screen</b>. It opens full screen and works without internet.</p>}
+      {state === 'manual' && <p className="muted">Open your browser's menu (⋮) and choose <b>Install app</b> or <b>Add to Home screen</b>. It opens full screen and works without internet.</p>}
+    </div>
   );
 }
 

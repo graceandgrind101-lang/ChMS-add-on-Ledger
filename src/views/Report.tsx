@@ -4,13 +4,13 @@ import { scoreCloseOut, spendByCategory, summarize } from '../logic';
 import { formatMoney } from '../money';
 import { canManage } from '../session';
 
-const STATUS_LABEL = { approved: 'Approved', pending: 'Waiting', rejected: 'Rejected' };
+const STATUS_LABEL = { approved: 'Approved', pending: 'Waiting', rejected: 'Rejected', withdrawn: 'Withdrawn' };
 
 /** A one-page budget report to print or save as PDF when the person reports back. */
 export default function Report({ id, me }: { id: string; me: Person }) {
   const data = useLiveQuery(async () => ({
     budget: await db.budgets.get(id),
-    expenses: (await db.expenses.where('budgetId').equals(id).toArray()).sort((a, b) => a.date.localeCompare(b.date) || a.createdAt - b.createdAt),
+    expenses: (await db.expenses.where('budgetId').equals(id).toArray()).filter((e) => e.status !== 'withdrawn').sort((a, b) => a.date.localeCompare(b.date) || a.createdAt - b.createdAt),
     closeout: await db.closeouts.where('budgetId').equals(id).first(),
     church: await getSetting('churchName', ''),
   }), [id]);

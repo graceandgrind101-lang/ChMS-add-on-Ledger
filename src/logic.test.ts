@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { budgetAlerts, parseReceiptText, scoreCloseOut, spendByCategory, summarize } from './logic';
+import { budgetAlerts, parseReceiptText, reminders, scoreCloseOut, spendByCategory, summarize } from './logic';
 import type { Budget, Expense } from './db';
 
 const budget: Budget = {
@@ -65,5 +65,22 @@ describe('spendByCategory', () => {
     const food = { ...exp(3000, 'approved'), category: 'Food' };
     const rows = spendByCategory([exp(50000, 'approved'), food, { ...food, id: 'f2' }, exp(9999, 'pending')]);
     expect(rows).toEqual([{ category: 'Travel', total: 50000 }, { category: 'Food', total: 6000 }]);
+  });
+});
+
+describe('reminders', () => {
+  it('tells the treasurer what needs attention, most urgent first', () => {
+    const ended = { ...budget, id: 'b2', name: 'VBS', assigneeName: 'Daniel', endDate: '2026-10-10' };
+    const closed = { ...budget, id: 'b3', status: 'closed' as const, endDate: '2026-09-01' };
+    const r = reminders([budget, ended, closed], [exp(10000, 'pending')], '2026-10-27', true);
+    expect(r.map((x) => x.text)).toEqual([
+      "Daniel's VBS ended 17 days ago. Review the report and close it.",
+      "Ruth's Kenya trip ends in 4 days.",
+      "Ruth's Kenya trip has 1 expense waiting for your approval.",
+    ]);
+  });
+  it('asks the budget holder for receipts', () => {
+    const r = reminders([budget], [], '2026-10-31', false);
+    expect(r).toEqual([{ budgetId: 'b1', tone: 'warning', text: 'Kenya trip ends today. Add your receipts today.' }]);
   });
 });

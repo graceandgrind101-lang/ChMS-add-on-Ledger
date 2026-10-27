@@ -9,19 +9,25 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['icon.svg'],
+      includeAssets: ['icon.svg', 'apple-touch-icon.png'],
       manifest: {
         name: 'ChMS Ledger',
         short_name: 'Ledger',
         description: 'Budgets, receipts and reimbursements for church ministry teams. Works offline.',
-        theme_color: '#ffffff',
+        id: '.',
+        theme_color: '#1a73e8',
         background_color: '#ffffff',
         display: 'standalone',
         start_url: '.',
-        icons: [{ src: 'icon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any' }],
+        icons: [
+          { src: 'icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+          { src: 'icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
+          { src: 'icon-maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+          { src: 'icon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any' },
+        ],
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,svg}'],
+        globPatterns: ['**/*.{js,css,html,svg,png}'],
         globIgnores: ['ocr/**'],
         // The OCR engine and language data (~7 MB) are cached the first time a receipt is read.
         runtimeCaching: [

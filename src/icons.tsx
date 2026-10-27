@@ -40,11 +40,12 @@ export function Ring({ pctLeft, over }: { pctLeft: number; over: boolean }) {
   const shown = Math.max(0, Math.min(1, pctLeft));
   const tone = over ? 'var(--red)' : shown <= 0.2 ? 'var(--amber)' : 'var(--blue)';
   return (
-    <svg className="ring" width="52" height="52" viewBox="0 0 52 52" aria-hidden="true">
+    <svg className="ring" width="56" height="56" viewBox="0 0 52 52" aria-hidden="true">
       <circle cx="26" cy="26" r={r} fill="none" stroke="var(--track)" strokeWidth="5" />
       <circle cx="26" cy="26" r={r} fill="none" stroke={tone} strokeWidth="5" strokeLinecap="round"
         strokeDasharray={`${c * shown} ${c}`} transform="rotate(-90 26 26)" />
-      <text x="26" y="30" textAnchor="middle" fontSize="12" fontWeight="600" fill="var(--text)">{over ? '!' : `${Math.round(shown * 100)}%`}</text>
+      <text x="26" y={over ? 31 : 27} textAnchor="middle" fontSize={over ? 16 : 12} fontWeight="600" fill={over ? 'var(--red)' : 'var(--text)'}>{over ? '!' : `${Math.round(shown * 100)}%`}</text>
+      {!over && <text x="26" y="37" textAnchor="middle" fontSize="8" fill="var(--muted)">left</text>}
     </svg>
   );
 }

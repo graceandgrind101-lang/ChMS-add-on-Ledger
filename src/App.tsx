@@ -1,5 +1,5 @@
 import { useLiveQuery } from 'dexie-react-hooks';
-import { db, getSetting } from './db';
+import { db, getSetting, today } from './db';
 import { canManage, useMe } from './session';
 import { useOnline, useRoute } from './router';
 import { useAutoBackup } from './useAutoBackup';
@@ -15,8 +15,11 @@ import More from './views/More';
 import Report from './views/Report';
 import Tour from './Tour';
 import Join from './views/Join';
+import Expenses from './views/Expenses';
 import { isDemo } from './demo';
 import { setCurrency } from './money';
+import { reminders } from './logic';
+import { useEffect } from 'react';
 
 export default function App() {
   const me = useMe();
@@ -30,7 +33,19 @@ export default function App() {
   }, [], 0);
   const demo = useLiveQuery(isDemo, [], false);
   const currency = useLiveQuery(() => getSetting('currency', 'USD'), [], 'USD');
+  const churchName = useLiveQuery(() => getSetting('churchName', ''), [], '');
   setCurrency(currency);
+  // The installed app's icon shows how many things need attention (Android, iOS 16.4+, desktop).
+  const attention = useLiveQuery(async () => {
+    if (!me) return 0;
+    const manager = canManage(me);
+    const budgets = (await db.budgets.where('status').equals('active').toArray()).filter((b) => manager || b.assigneeId === me.id);
+    return reminders(budgets, await db.expenses.toArray(), today(), manager).length;
+  }, [me?.id, me?.role], 0);
+  useEffect(() => {
+    if (!('setAppBadge' in navigator)) return;
+    (attention ? navigator.setAppBadge(attention) : navigator.clearAppBadge()).catch(() => {});
+  }, [attention]);
   useAutoBackup(online);
 
   if (!ready) return <p className="muted" style={{ padding: 16 }}>Loading…</p>;
@@ -53,12 +68,16 @@ export default function App() {
       title = 'New budget';
       break;
     case 'add':
-      view = <AddExpense me={me} budgetId={params.get('budget') ?? undefined} />;
-      title = 'Add expense';
+      view = <AddExpense key={params.get('edit') ?? 'new'} me={me} budgetId={params.get('budget') ?? undefined} editId={params.get('edit') ?? undefined} />;
+      title = params.get('edit') ? 'Edit expense' : 'Add expense';
       break;
     case 'ledger':
       view = <Ledger budgetId={params.get('budget') ?? undefined} />;
       title = 'Ledger';
+      break;
+    case 'expenses':
+      view = <Expenses me={me} />;
+      title = 'Search expenses';
       break;
     case 'approvals':
       view = <Approvals me={me} />;
@@ -71,9 +90,9 @@ export default function App() {
     default:
       view = <Budgets me={me} />;
   }
-  const tab = parts[0] === 'budget' || parts[0] === 'report' || parts[0] === 'new-budget' || !parts[0] ? 'budgets' : parts[0];
+  const tab = parts[0] === 'expenses' ? 'approvals' : parts[0] === 'budget' || parts[0] === 'report' || parts[0] === 'new-budget' || !parts[0] ? 'budgets' : parts[0];
   // Pages opened from another page get a back arrow instead of being a tab of their own.
-  const sub = parts[0] === 'budget' || parts[0] === 'report' || parts[0] === 'new-budget' || parts[0] === 'add';
+  const sub = parts[0] === 'expenses' || parts[0] === 'budget' || parts[0] === 'report' || parts[0] === 'new-budget' || parts[0] === 'add';
   const showFab = !parts[0] || (parts[0] === 'budget' && parts[1]);
 
   return (
@@ -84,14 +103,15 @@ export default function App() {
             <Icon name="back" />
           </button>
         )}
-        <h1>{title}</h1>
+        <h1>{title}{!parts[0] && churchName && <small>{churchName}</small>}</h1>
         {!online && <span className="offline"><Icon name="offline" size={16} /> Offline</span>}
+        {!sub && <a className="avatar" href="#/more" aria-label={`${me.name}, account`}>{me.name.trim().charAt(0).toUpperCase()}</a>}
       </header>
       {demo && <Tour />}
       <main key={currency}>{view}</main>
       {showFab && (
-        <a className="fab" href={parts[0] === 'budget' ? `#/add?budget=${parts[1]}` : '#/add'} aria-label="Add expense">
-          <Icon name="add" size={28} />
+        <a className="fab" href={parts[0] === 'budget' ? `#/add?budget=${parts[1]}` : '#/add'}>
+          <Icon name="camera" /> Add receipt
         </a>
       )}
       <nav className="tabs">

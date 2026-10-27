@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db, today, uid, type Expense, type Person } from '../db';
-import { addExpense } from '../actions';
+import { addExpense, updateExpense } from '../actions';
 import { parseReceiptText } from '../logic';
 import { formatMoney, parseMoney, toInput, currencyCode } from '../money';
 import { compressImage, readReceipt } from '../ocr';
@@ -12,7 +12,7 @@ import { isDemo, sampleReceipt } from '../demo';
 
 const CATEGORIES = ['Travel', 'Lodging', 'Food', 'Ministry supplies', 'Transport', 'Venue', 'Printing', 'Gifts', 'Medical', 'Other'];
 
-export default function AddExpense({ me, budgetId }: { me: Person; budgetId?: string }) {
+export default function AddExpense({ me, budgetId, editId }: { me: Person; budgetId?: string; editId?: string }) {
   const manager = canManage(me);
   const budgets = useLiveQuery(async () => {
     const all = await db.budgets.where('status').equals('active').toArray();
@@ -33,6 +33,16 @@ export default function AddExpense({ me, budgetId }: { me: Person; budgetId?: st
     if (!f.budgetId && budgets?.length === 1) setF((x) => ({ ...x, budgetId: budgets[0].id }));
   }, [budgets, f.budgetId]);
   useEffect(() => () => { if (preview) URL.revokeObjectURL(preview); }, [preview]);
+
+  // Editing: load the expense once and fill the form with it.
+  const editing = useLiveQuery(async () => (editId ? (await db.expenses.get(editId)) ?? null : null), [editId]);
+  useEffect(() => {
+    if (!editing) return;
+    setF({ budgetId: editing.budgetId, amount: toInput(editing.amount), date: editing.date, merchant: editing.merchant, category: editing.category, paidWith: editing.paidWith, notes: editing.notes });
+    setSource(editing.source);
+    if (editing.receiptId) db.receipts.get(editing.receiptId).then((r) => r && setPreview(URL.createObjectURL(r.blob)));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editing?.id]);
 
   function fill(found: { merchant?: string; date?: string; total?: number }) {
     setF((x) => ({
@@ -75,6 +85,15 @@ export default function AddExpense({ me, budgetId }: { me: Person; budgetId?: st
       receiptId = uid();
       await db.receipts.add({ id: receiptId, blob: image });
     }
+    if (editing) {
+      if (receiptId && editing.receiptId) await db.receipts.delete(editing.receiptId);
+      await updateExpense(editing, {
+        budgetId: budget.id, date: f.date, merchant: f.merchant.trim(), category: f.category || 'Other', amount, notes: f.notes.trim(), paidWith: f.paidWith,
+        ...(receiptId ? { receiptId, ocrText: ocr.text || undefined, source } : {}),
+      });
+      go(`/budget/${budget.id}`);
+      return;
+    }
     const spender = manager && budget.assigneeId !== me.id
       ? { spenderId: budget.assigneeId, spenderName: budget.assigneeName }
       : { spenderId: me.id, spenderName: me.name };
@@ -85,7 +104,8 @@ export default function AddExpense({ me, budgetId }: { me: Person; budgetId?: st
     go(`/budget/${budget.id}`);
   }
 
-  if (!budgets) return null;
+  if (!budgets || (editId && editing === undefined)) return null;
+  if (editId && !editing) return <p className="muted">This expense no longer exists.</p>;
   if (budgets.length === 0) {
     return <p className="muted">{manager ? <>There is no active budget yet. <a href="#/new-budget">Set a budget first</a>, then add expenses to it.</> : 'No active budget is assigned to you yet. Ask your treasurer to set one.'}</p>;
   }
@@ -102,7 +122,8 @@ export default function AddExpense({ me, budgetId }: { me: Person; budgetId?: st
           <Icon name="mail" size={28} />Email receipt
         </label>
       </div>
-      {demo && !image && (
+      {editing?.status === 'rejected' && <div className="notice error">Rejected{editing.rejectReason ? `: ${editing.rejectReason}` : ''}. Saving your changes sends it back for approval.</div>}
+      {demo && !image && !editing && (
         <div className="actions"><button type="button" onClick={async () => onFile(await sampleReceipt(), 'gallery')}>Try a sample receipt</button></div>
       )}
 
@@ -145,7 +166,7 @@ export default function AddExpense({ me, budgetId }: { me: Person; budgetId?: st
       <label htmlFor="nt">Notes</label>
       <input id="nt" value={f.notes} onChange={set('notes')} />
       <div className="actions">
-        <button className="primary" type="submit">{manager ? 'Save' : 'Submit for approval'}</button>
+        <button className="primary" type="submit">{editing ? 'Save changes' : manager ? 'Save' : 'Submit for approval'}</button>
         <a className="btn" href="#/">Cancel</a>
       </div>
     </form>

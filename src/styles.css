@@ -43,7 +43,11 @@ body { font: 15px/1.45 Roboto, 'Segoe UI', system-ui, -apple-system, Arial, sans
 /* On wider screens the app sits in a framed column, like a phone app on a desk. */
 @media (min-width: 760px) { #root { box-shadow: var(--shadow); border-left: 1px solid var(--line); border-right: 1px solid var(--line); } }
 header.top { display: flex; align-items: center; gap: 8px; min-height: 56px; padding: 0 16px; position: sticky; top: 0; background: var(--bar); color: var(--on-bar); z-index: 3; box-shadow: var(--shadow); }
-header.top h1 { font-size: 20px; font-weight: 500; margin: 0; flex: 1; }
+header.top h1 { font-size: 20px; font-weight: 500; margin: 0; flex: 1; min-width: 0; }
+header.top h1 small { display: block; font-size: 13px; font-weight: 400; opacity: .85; margin-top: -2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.avatar { flex: none; width: 32px; height: 32px; border-radius: 50%; background: #fff; color: var(--blue); font-weight: 600; display: flex; align-items: center; justify-content: center; }
+:root[data-theme='dark'] .avatar { background: var(--blue); color: var(--bar); }
+@media (prefers-color-scheme: dark) { :root[data-theme='system'] .avatar { background: var(--blue); color: var(--bar); } }
 .icon-btn { border: 0; background: transparent; color: inherit; padding: 8px; margin-left: -8px; border-radius: 50%; display: inline-flex; }
 .icon { display: block; flex: none; }
 .offline { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 500; background: rgba(255, 255, 255, .2); padding: 4px 10px; border-radius: 12px; }
@@ -64,7 +68,8 @@ a { color: var(--blue); text-decoration: none; }
 .budget-money > div { font-weight: 500; font-size: 16px; }
 .budget-money .neg { color: var(--red); }
 .ring { flex: none; }
-a.card:hover { background: var(--surface); }
+a.card { transition: box-shadow .15s, border-color .15s; }
+a.card:hover, a.card:active { border-color: transparent; box-shadow: var(--shadow); }
 .row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .big { font-size: 28px; font-weight: 400; }
 .bar { height: 6px; background: var(--surface); border: 1px solid var(--line); border-radius: 3px; overflow: hidden; margin: 10px 0 6px; }
@@ -109,9 +114,18 @@ nav.tabs .pill { position: relative; display: flex; justify-content: center; wid
 nav.tabs a.on { color: var(--text); }
 nav.tabs a.on .pill { background: var(--blue-soft); color: var(--blue); }
 nav.tabs .count { position: absolute; top: -2px; right: 10px; background: var(--red); color: #fff; font-size: 11px; line-height: 16px; min-width: 16px; text-align: center; border-radius: 8px; padding: 0 4px; }
-.fab { position: fixed; right: max(16px, calc(50% - 344px)); bottom: calc(92px + env(safe-area-inset-bottom)); width: 56px; height: 56px; border-radius: 16px; background: var(--blue); color: var(--bg); display: flex; align-items: center; justify-content: center; box-shadow: 0 1px 3px rgba(60, 64, 67, .3), 0 4px 8px 3px rgba(60, 64, 67, .15); z-index: 2; }
+.fab { position: fixed; right: max(16px, calc(50% - 344px)); bottom: calc(92px + env(safe-area-inset-bottom)); height: 56px; padding: 0 20px 0 16px; gap: 10px; font-weight: 500; border-radius: 16px; background: var(--blue); color: var(--bg); display: flex; align-items: center; justify-content: center; box-shadow: 0 1px 3px rgba(60, 64, 67, .3), 0 4px 8px 3px rgba(60, 64, 67, .15); z-index: 2; }
 .login { max-width: 360px; margin: 0 auto; padding: 18vh 16px 16px; text-align: center; }
+.login.start { max-width: 400px; padding: 0 16px 24px; }
 .login img { width: 72px; height: 72px; border-radius: 18px; box-shadow: var(--shadow); }
+/* Welcome band: the app's blue, full width on phones, with the logo on top. */
+.welcome { background: var(--bar); color: var(--on-bar); margin: 0 -16px; padding: calc(40px + env(safe-area-inset-top)) 24px 28px; border-radius: 0 0 28px 28px; }
+.welcome img { background: #fff; box-shadow: 0 2px 8px rgba(0, 0, 0, .2); }
+.welcome p { margin: 0; opacity: .9; }
+.features { list-style: none; padding: 0; margin: 20px 0 8px; text-align: left; }
+.features li { display: flex; align-items: center; gap: 14px; padding: 8px 4px; }
+.features span { flex: none; width: 40px; height: 40px; border-radius: 50%; background: var(--blue-soft); color: var(--blue); display: flex; align-items: center; justify-content: center; }
+@media (min-width: 432px) { .welcome { margin: 24px 0 0; border-radius: 28px; } }
 .login h1 { font-weight: 400; font-size: 24px; margin: 16px 0 4px; }
 .login button { width: 100%; margin-top: 12px; padding: 12px; }
 .google-btn { display: flex; align-items: center; justify-content: center; gap: 10px; color: var(--text); border-color: var(--line); background: var(--bg); }
@@ -175,6 +189,20 @@ button.small { padding: 4px 12px; font-size: 13px; margin-left: auto; margin-rig
 .login .church-name { margin-top: 14px; font-weight: 600; color: var(--blue); text-transform: uppercase; letter-spacing: .06em; font-size: 13px; }
 .join-budgets { text-align: left; margin: 16px 0 4px; }
 .join-budgets .row + .row { margin-top: 6px; }
+.install { border-left: 4px solid var(--blue); margin-top: 0; }
+.install p { margin: 4px 0 0; }
 .paste-invite { margin-top: 20px; text-align: left; }
 .paste-invite summary { cursor: pointer; color: var(--blue); text-align: center; font-size: 14px; }
 .legal { margin-top: 28px; font-size: 13px; color: var(--muted); }
+.small-btn { padding: 4px 14px; font-size: 13px; }
+.search-link { display: block; text-align: center; margin-bottom: 4px; }
+.filter-chips { margin: 10px 0 4px; }
+.filter-chips .chip { border: 1px solid var(--line); cursor: pointer; font: inherit; font-size: 13px; padding: 4px 12px; }
+.filter-chips .chip.on { background: var(--blue-soft); color: var(--blue); border-color: transparent; }
+.more-filters { margin: 6px 0; }
+.more-filters summary { cursor: pointer; color: var(--blue); font-size: 14px; }
+.search-summary { margin: 8px 0 4px; }
+.reminders b { display: block; margin-bottom: 6px; }
+.reminder { display: block; padding: 8px 0 8px 12px; border-left: 3px solid var(--amber); color: var(--text); font-size: 14px; }
+.reminder + .reminder { margin-top: 6px; }
+.reminder.critical { border-left-color: var(--red); }

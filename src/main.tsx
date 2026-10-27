@@ -5,10 +5,12 @@ import App from './App';
 import { db } from './db';
 import { ErrorBoundary, StorageBlocked } from './Fatal';
 import { applyTheme, getTheme } from './theme';
+import { captureInstallPrompt } from './install';
 import './styles.css';
 
 applyTheme(getTheme());
 registerSW({ immediate: true });
+captureInstallPrompt();
 navigator.storage?.persist?.();
 
 const root = createRoot(document.getElementById('root')!);
