@@ -4,8 +4,10 @@ import { registerSW } from 'virtual:pwa-register';
 import App from './App';
 import { db } from './db';
 import { ErrorBoundary, StorageBlocked } from './Fatal';
+import { applyTheme, getTheme } from './theme';
 import './styles.css';
 
+applyTheme(getTheme());
 registerSW({ immediate: true });
 navigator.storage?.persist?.();
 

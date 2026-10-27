@@ -14,8 +14,15 @@
   --red-soft: #fce8e6;
   color-scheme: light;
 }
+/* Dark colors apply when chosen under More, or when following a device set to dark mode. */
+:root[data-theme='dark'] {
+  --bg: #202124; --surface: #292a2d; --line: #3c4043; --text: #e8eaed; --muted: #9aa0a6;
+  --blue: #8ab4f8; --blue-soft: #263449; --green: #81c995; --green-soft: #1e3a2a;
+  --amber: #fdd663; --amber-soft: #3d3420; --red: #f28b82; --red-soft: #45282a;
+  color-scheme: dark;
+}
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root[data-theme='system'] {
     --bg: #202124; --surface: #292a2d; --line: #3c4043; --text: #e8eaed; --muted: #9aa0a6;
     --blue: #8ab4f8; --blue-soft: #263449; --green: #81c995; --green-soft: #1e3a2a;
     --amber: #fdd663; --amber-soft: #3d3420; --red: #f28b82; --red-soft: #45282a;
